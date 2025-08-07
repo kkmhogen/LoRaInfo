@@ -13,7 +13,7 @@ function decodeUplink(input) {
     let payloadLength = bytes.length;
 
     if (msg_type <= 0x64) { // normal report
-        if (bytes.length < 7) {
+        if (bytes.length < 11) {
             return { errors: ["Invalid payload length for normal report"] };
         }
         let sensor_type = bytes[1];
