@@ -21,7 +21,7 @@ function decodeUplink(input) {
             let data = {
                 report: true,
                 flag: bytes[2],    // report type
-                temp1: toSignedInt16((bytes[3] << 8) | bytes[4]), // temp1
+                temp1: toSignedInt16((bytes[3] << 8) | bytes[4]) /10.0, // temp1
             };
             results.push(data);
         }
@@ -48,7 +48,7 @@ function decodeUplink(input) {
                         report_history: true,
                         measure_utc_time: (bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | bytes[index + 4],
                         flag: bytes[index + 5],
-                        temp1: toSignedInt16((bytes[index + 6] << 8) | bytes[index + 7]),
+                        temp1: toSignedInt16((bytes[index + 6] << 8) | bytes[index + 7]) /10.0,
                     };
                     results.push(data);
                     index += 8;
