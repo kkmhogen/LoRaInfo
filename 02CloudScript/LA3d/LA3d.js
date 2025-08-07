@@ -21,7 +21,7 @@ function decodeUplink(input) {
             let data = {
                 report: true,
                 flag: bytes[2],    // report type
-                distance: toSignedInt16((bytes[3] << 8) | bytes[4]) // distance
+                millisecond_distance: toSignedInt16((bytes[3] << 8) | bytes[4]) // distance
             };
             results.push(data);
         }
@@ -48,7 +48,7 @@ function decodeUplink(input) {
                         report_history: true,
                         measure_utc_time: (bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | bytes[index + 4],
                         flag: bytes[index + 5],
-                        distance: toSignedInt16((bytes[index + 6] << 8) | bytes[index + 7]),
+                        millisecond_distance: toSignedInt16((bytes[index + 6] << 8) | bytes[index + 7]),
                     };
                     results.push(data);
                     index += 8;
