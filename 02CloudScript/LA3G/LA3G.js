@@ -5,12 +5,22 @@ function decodeUplink(input) {
     let bytes = input.bytes;
     let results = []; // 用于存储每条数据解析结果的数组
 
-    function toSignedInt16(value) {
-        return value > 32767 ? value - 65536 : value;
+    function int32ToFloat(bytes) {
+        const buffer = new ArrayBuffer(4);
+        const view = new DataView(buffer);
+        view.setUint8(0, bytes[0]);
+        view.setUint8(1, bytes[1]);
+        view.setUint8(2, bytes[2]);
+        view.setUint8(3, bytes[3]);
+        return view.getFloat32(0);
     }
 
     let msg_type = bytes[0];
     let payloadLength = bytes.length;
+
+    if (msg_type < 0x00 || msg_type > 0xFF) {
+        return { errors: ["Invalid message type"] };
+    }
 
     if (msg_type <= 0x64) { // normal report
         if (bytes.length < 11) {
@@ -21,8 +31,8 @@ function decodeUplink(input) {
             let data = {
                 report: true,
                 flag: bytes[2],    // report type
-                lat_data: (bytes[3] << 24) | (bytes[4] << 16) | (bytes[5] << 8) | bytes[6], // lat
-                log_data: (bytes[7] << 24) | (bytes[8] << 16) | (bytes[9] << 8) | bytes[10], // log
+                lat: int32ToFloat([bytes[3], bytes[4], bytes[5], bytes[6]]),
+                log: int32ToFloat([bytes[7], bytes[8], bytes[9], bytes[10]]),
             };
             results.push(data);
         }
@@ -42,19 +52,19 @@ function decodeUplink(input) {
         }
         else {
             let index = 0;
-            while (index + 14 <= payloadLength) {
+            while (index + 14 < payloadLength) {
                 let sensor_type = bytes[index];
                 if (sensor_type == 0x67) { // LA3g history data
                     let data = {
                         report_history: true,
                         measure_utc_time: (bytes[index + 1] << 24) | (bytes[index + 2] << 16) | (bytes[index + 3] << 8) | bytes[index + 4],
                         flag: bytes[index + 5],
-						lat_data: (bytes[index + 6] << 24) | (bytes[index + 7] << 16) | (bytes[index + 8] << 8) | bytes[index + 9], // lat
-						log_data: (bytes[index + 10] << 24) | (bytes[index + 11] << 16) | (bytes[index + 12] << 8) | bytes[index + 13], // log
+                        lat_data: int32ToFloat([bytes[index + 6], bytes[index + 7], bytes[index + 8], bytes[index + 9]]),
+                        log_data: int32ToFloat([bytes[index + 10], bytes[index + 11], bytes[index + 12], bytes[index + 13]]),
                     };
                     results.push(data);
                     index += 14;
-                }
+                } 
             }
         }
     }
